@@ -16,7 +16,7 @@ end riscv_system;
 architecture rtl of riscv_system is
     constant MEM_WIDTH      : integer := WORD_LENGTH;
     constant NUM_BYTES      : integer := MEM_WIDTH / 8;
-    constant RAM_ADDR_WIDTH : integer := 17;
+    constant RAM_ADDR_WIDTH : integer := 10;
 
     -- Bus de instrucciones (puerto A)
     signal addr_inst  : std_logic_vector(31 downto 0);
