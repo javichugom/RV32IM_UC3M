@@ -18,6 +18,7 @@ architecture sim of tb_memory is
   signal rdata_a : std_logic_vector(MEM_WIDTH-1 downto 0);
   signal we_a    : std_logic := '0';
   signal be_a    : std_logic_vector(3 downto 0) := (others => '0');
+
   signal addr_b  : std_logic_vector(RAM_ADDR_WIDTH-1 downto 0) := (others => '0');
   signal wdata_b : std_logic_vector(MEM_WIDTH-1 downto 0)      := (others => '0');
   signal rdata_b : std_logic_vector(MEM_WIDTH-1 downto 0);
@@ -64,12 +65,12 @@ architecture sim of tb_memory is
 begin
 
 
-  dut : entity work.memory
+  dut : entity work.memory(rtl)
     generic map (
       MEM_WIDTH      => MEM_WIDTH,
       NUM_BYTES      => NUM_BYTES,
       RAM_ADDR_WIDTH => RAM_ADDR_WIDTH,
-      INIT_FILE      => "main.mem")
+      INIT_FILE      => "/test/memory_content/main.mem")
     port map (
       clk => clk,
       addr_a => addr_a, wdata_a => wdata_a, rdata_a => rdata_a,
