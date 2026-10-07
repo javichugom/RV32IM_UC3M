@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-use work.instructions.all;
+use work.definitions.all;
 
 entity riscv_fetch is
     port(
@@ -10,21 +10,24 @@ entity riscv_fetch is
         rst : in std_logic;
         stall :  in std_logic;
 
-        addr_inst : out std_logic_vector(31 downto 0);
-        wdata_inst : out std_logic_vector(31 downto 0);  
-        rdata_inst : in std_logic_vector(31 downto 0);
+        addr_inst : out word;
+        wdata_inst : out word;  
+        rdata_inst : in word;
         we_inst : out std_logic;
         be_inst: out std_logic_vector(3 downto 0);
 
-        instruction : out instruction_t
+        branch_e : in std_logic;
+        branch_addr : in word; 
+
+        instruction : out word
     );
 end riscv_fetch;
 
 architecture rtl of riscv_fetch is
-    signal pc : std_logic_vector(31 downto 0);
+    signal pc : word;
 begin
     addr_inst <= pc;
-    we_inst <= '1';
+    we_inst <= '0';
     be_inst <= "1111";
 
     process(clk)
@@ -33,9 +36,10 @@ begin
         then
             pc <= (others => '0') when rst
                   else pc when stall
+                  else branch_addr when branch_e
                   else std_logic_vector(unsigned(pc) + 4);
         end if;
     end process;
 
-    instruction <= decode_instruction(rdata_inst);
+    instruction <= rdata_inst;
 end rtl;
