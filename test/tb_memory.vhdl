@@ -70,7 +70,7 @@ begin
       MEM_WIDTH      => MEM_WIDTH,
       NUM_BYTES      => NUM_BYTES,
       RAM_ADDR_WIDTH => RAM_ADDR_WIDTH,
-      INIT_FILE      => "/test/memory_content/main.mem")
+      INIT_FILE      => "test/memory_content/main.mem")
     port map (
       clk => clk,
       addr_a => addr_a, wdata_a => wdata_a, rdata_a => rdata_a,

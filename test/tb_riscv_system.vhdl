@@ -19,7 +19,15 @@ begin
 
     stim : process
     begin
-        wait for 100 * CLK_PERIOD;
+        rst <= '1';
+        wait until rising_edge(clk);
+        rst <= '0';
+        
+        for i in 0 to 100
+        loop
+            wait until rising_edge(clk);
+        end loop;
+
         std.env.finish;
     end process;
 end sim;
