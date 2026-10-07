@@ -53,7 +53,7 @@ architecture rtl of memory is
         return temp_mem;
     end function;
 
-    signal mem : mem_t := init_mem_from_file(INIT_FILE);
+    shared variable mem : mem_t := init_mem_from_file(INIT_FILE);
 begin
     P_PORT_A:
     process(clk)
@@ -65,7 +65,7 @@ begin
             if we_a = '1' then
                 for index in be_a'range loop
                     if be_a(index) = '1' then
-                        mem(idx)(BYTE_W*(index + 1) - 1 downto BYTE_W*index) <=
+                        mem(idx)(BYTE_W*(index + 1) - 1 downto BYTE_W*index) :=
                         wdata_a(BYTE_W*(index + 1) - 1 downto BYTE_W*index);
                     end if;
                 end loop;
@@ -83,7 +83,7 @@ begin
         if we_b = '1' then
             for index in be_b'range loop
                 if be_b(index) = '1' then
-                    mem(idx)(BYTE_W*(index + 1) - 1 downto BYTE_W*index) <=
+                    mem(idx)(BYTE_W*(index + 1) - 1 downto BYTE_W*index) :=
                     wdata_b(BYTE_W*(index + 1) - 1 downto BYTE_W*index);
                 end if;
             end loop;

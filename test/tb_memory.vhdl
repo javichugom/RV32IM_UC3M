@@ -9,7 +9,7 @@ architecture sim of tb_memory is
 
   constant MEM_WIDTH      : integer := 32;
   constant NUM_BYTES      : integer := 4;
-  constant RAM_ADDR_WIDTH : integer := 17;
+  constant RAM_ADDR_WIDTH : integer := 10;
   constant CLK_PERIOD     : time    := 10 ns;
 
   signal clk     : std_logic := '0';
