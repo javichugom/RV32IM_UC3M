@@ -48,6 +48,5 @@ begin
     
     f_eq <= nor result;
     f_lt <= result(31) when (a(31) = b(31)) else a(31);    
-    f_lt_u <= result_extended(32);
-                
+    f_lt_u <= result_extended(32);                
 end rtl;
