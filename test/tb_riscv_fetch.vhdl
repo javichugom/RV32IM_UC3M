@@ -75,7 +75,7 @@ begin
             & ht & "expected: " & to_hstring(expected_pc) & LF
             & ht & "obtained: " & to_hstring(addr_inst);
         assert we_inst = '0'
-            report "Incorrect write enable. It shoudl always be low" & LF
+            report "Incorrect write enable. It should always be low" & LF
             & ht & "expected: " & to_string(std_logic'('0')) & LF
             & ht & "obtained: " & to_string(we_inst);
         assert be_inst= "1111"
@@ -83,7 +83,7 @@ begin
             & ht & "expected: " & to_string(std_logic_vector'("1111")) & LF
             & ht & "obtained: " & to_string(be_inst);
         assert instruction = rdata_inst
-            report "Incorrect address after reset" & LF
+            report "Incorrect instruction" & LF
             & ht & "expected: " & to_hstring(rdata_inst) & LF
             & ht & "obtained: " & to_hstring(instruction);
 
@@ -98,11 +98,11 @@ begin
 
         expected_pc := x"00000004";
         assert addr_inst = expected_pc
-            report "Incorrect address after reset" & LF
+            report "Incorrect address" & LF
             & ht & "expected: " & to_hstring(expected_pc) & LF
             & ht & "obtained: " & to_hstring(addr_inst);
         assert we_inst = '0'
-            report "Incorrect write enable. It shoudl always be low" & LF
+            report "Incorrect write enable. It should always be low" & LF
             & ht & "expected: " & to_string(std_logic'('0')) & LF
             & ht & "obtained: " & to_string(we_inst);
         assert be_inst= "1111"
@@ -110,7 +110,7 @@ begin
             & ht & "expected: " & to_string(std_logic_vector'("1111")) & LF
             & ht & "obtained: " & to_string(be_inst);
         assert instruction = rdata_inst
-            report "Incorrect address after reset" & LF
+            report "Incorrect instruction" & LF
             & ht & "expected: " & to_hstring(rdata_inst) & LF
             & ht & "obtained: " & to_hstring(instruction);
 
@@ -125,11 +125,11 @@ begin
 
         expected_pc := x"00000008";
         assert addr_inst = expected_pc
-            report "Incorrect address after reset" & LF
+            report "Incorrect address" & LF
             & ht & "expected: " & to_hstring(expected_pc) & LF
             & ht & "obtained: " & to_hstring(addr_inst);
         assert we_inst = '0'
-            report "Incorrect write enable. It shoudl always be low" & LF
+            report "Incorrect write enable. It should always be low" & LF
             & ht & "expected: " & to_string(std_logic'('0')) & LF
             & ht & "obtained: " & to_string(we_inst);
         assert be_inst= "1111"
@@ -137,7 +137,7 @@ begin
             & ht & "expected: " & to_string(std_logic_vector'("1111")) & LF
             & ht & "obtained: " & to_string(be_inst);
         assert instruction = rdata_inst
-            report "Incorrect address after reset" & LF
+            report "Incorrect instruction" & LF
             & ht & "expected: " & to_hstring(rdata_inst) & LF
             & ht & "obtained: " & to_hstring(instruction);
 
@@ -152,11 +152,11 @@ begin
 
         expected_pc := x"00000008";
         assert addr_inst = expected_pc
-            report "Incorrect address after reset" & LF
+            report "Incorrect address after stall" & LF
             & ht & "expected: " & to_hstring(expected_pc) & LF
             & ht & "obtained: " & to_hstring(addr_inst);
         assert we_inst = '0'
-            report "Incorrect write enable. It shoudl always be low" & LF
+            report "Incorrect write enable. It should always be low" & LF
             & ht & "expected: " & to_string(std_logic'('0')) & LF
             & ht & "obtained: " & to_string(we_inst);
         assert be_inst= "1111"
@@ -164,7 +164,7 @@ begin
             & ht & "expected: " & to_string(std_logic_vector'("1111")) & LF
             & ht & "obtained: " & to_string(be_inst);
         assert instruction = rdata_inst
-            report "Incorrect address after reset" & LF
+            report "Incorrect instruction" & LF
             & ht & "expected: " & to_hstring(rdata_inst) & LF
             & ht & "obtained: " & to_hstring(instruction);
 
@@ -179,11 +179,11 @@ begin
 
         expected_pc := x"00000000";
         assert addr_inst = expected_pc
-            report "Incorrect address after reset" & LF
+            report "Incorrect address after reset and stall" & LF
             & ht & "expected: " & to_hstring(expected_pc) & LF
             & ht & "obtained: " & to_hstring(addr_inst);
         assert we_inst = '0'
-            report "Incorrect write enable. It shoudl always be low" & LF
+            report "Incorrect write enable. It should always be low" & LF
             & ht & "expected: " & to_string(std_logic'('0')) & LF
             & ht & "obtained: " & to_string(we_inst);
         assert be_inst= "1111"
@@ -191,7 +191,7 @@ begin
             & ht & "expected: " & to_string(std_logic_vector'("1111")) & LF
             & ht & "obtained: " & to_string(be_inst);
         assert instruction = rdata_inst
-            report "Incorrect address after reset" & LF
+            report "Incorrect instruction" & LF
             & ht & "expected: " & to_hstring(rdata_inst) & LF
             & ht & "obtained: " & to_hstring(instruction);
 
@@ -206,11 +206,11 @@ begin
 
         expected_pc := branch_addr;
         assert addr_inst = expected_pc
-            report "Incorrect address after reset" & LF
+            report "Incorrect address after branch" & LF
             & ht & "expected: " & to_hstring(expected_pc) & LF
             & ht & "obtained: " & to_hstring(addr_inst);
         assert we_inst = '0'
-            report "Incorrect write enable. It shoudl always be low" & LF
+            report "Incorrect write enable. It should always be low" & LF
             & ht & "expected: " & to_string(std_logic'('0')) & LF
             & ht & "obtained: " & to_string(we_inst);
         assert be_inst= "1111"
@@ -218,7 +218,7 @@ begin
             & ht & "expected: " & to_string(std_logic_vector'("1111")) & LF
             & ht & "obtained: " & to_string(be_inst);
         assert instruction = rdata_inst
-            report "Incorrect address after reset" & LF
+            report "Incorrect instruction" & LF
             & ht & "expected: " & to_hstring(rdata_inst) & LF
             & ht & "obtained: " & to_hstring(instruction);
 
@@ -233,11 +233,11 @@ begin
 
         expected_pc := x"22222220";
         assert addr_inst = expected_pc
-            report "Incorrect address after reset" & LF
+            report "Incorrect address after branch and stall" & LF
             & ht & "expected: " & to_hstring(expected_pc) & LF
             & ht & "obtained: " & to_hstring(addr_inst);
         assert we_inst = '0'
-            report "Incorrect write enable. It shoudl always be low" & LF
+            report "Incorrect write enable. It should always be low" & LF
             & ht & "expected: " & to_string(std_logic'('0')) & LF
             & ht & "obtained: " & to_string(we_inst);
         assert be_inst= "1111"
@@ -245,7 +245,7 @@ begin
             & ht & "expected: " & to_string(std_logic_vector'("1111")) & LF
             & ht & "obtained: " & to_string(be_inst);
         assert instruction = rdata_inst
-            report "Incorrect address after reset" & LF
+            report "Incorrect instruction" & LF
             & ht & "expected: " & to_hstring(rdata_inst) & LF
             & ht & "obtained: " & to_hstring(instruction);
 
@@ -260,11 +260,11 @@ begin
 
         expected_pc := x"00000000";
         assert addr_inst = expected_pc
-            report "Incorrect address after reset" & LF
+            report "Incorrect address after branch and reset" & LF
             & ht & "expected: " & to_hstring(expected_pc) & LF
             & ht & "obtained: " & to_hstring(addr_inst);
         assert we_inst = '0'
-            report "Incorrect write enable. It shoudl always be low" & LF
+            report "Incorrect write enable. It should always be low" & LF
             & ht & "expected: " & to_string(std_logic'('0')) & LF
             & ht & "obtained: " & to_string(we_inst);
         assert be_inst= "1111"
@@ -272,7 +272,7 @@ begin
             & ht & "expected: " & to_string(std_logic_vector'("1111")) & LF
             & ht & "obtained: " & to_string(be_inst);
         assert instruction = rdata_inst
-            report "Incorrect address after reset" & LF
+            report "Incorrect instruction" & LF
             & ht & "expected: " & to_hstring(rdata_inst) & LF
             & ht & "obtained: " & to_hstring(instruction);
 
@@ -287,11 +287,11 @@ begin
 
         expected_pc := x"00000004";
         assert addr_inst = expected_pc
-            report "Incorrect address after reset" & LF
+            report "Incorrect address" & LF
             & ht & "expected: " & to_hstring(expected_pc) & LF
             & ht & "obtained: " & to_hstring(addr_inst);
         assert we_inst = '0'
-            report "Incorrect write enable. It shoudl always be low" & LF
+            report "Incorrect write enable. It should always be low" & LF
             & ht & "expected: " & to_string(std_logic'('0')) & LF
             & ht & "obtained: " & to_string(we_inst);
         assert be_inst= "1111"
@@ -299,7 +299,7 @@ begin
             & ht & "expected: " & to_string(std_logic_vector'("1111")) & LF
             & ht & "obtained: " & to_string(be_inst);
         assert instruction = rdata_inst
-            report "Incorrect address after reset" & LF
+            report "Incorrect instruction" & LF
             & ht & "expected: " & to_hstring(rdata_inst) & LF
             & ht & "obtained: " & to_hstring(instruction);
 
@@ -314,11 +314,11 @@ begin
 
         expected_pc := x"00000000";
         assert addr_inst = expected_pc
-            report "Incorrect address after reset" & LF
+            report "Incorrect address after reset, stall and branch" & LF
             & ht & "expected: " & to_hstring(expected_pc) & LF
             & ht & "obtained: " & to_hstring(addr_inst);
         assert we_inst = '0'
-            report "Incorrect write enable. It shoudl always be low" & LF
+            report "Incorrect write enable. It should always be low" & LF
             & ht & "expected: " & to_string(std_logic'('0')) & LF
             & ht & "obtained: " & to_string(we_inst);
         assert be_inst= "1111"
@@ -326,7 +326,7 @@ begin
             & ht & "expected: " & to_string(std_logic_vector'("1111")) & LF
             & ht & "obtained: " & to_string(be_inst);
         assert instruction = rdata_inst
-            report "Incorrect address after reset" & LF
+            report "Incorrect instruction" & LF
             & ht & "expected: " & to_hstring(rdata_inst) & LF
             & ht & "obtained: " & to_hstring(instruction);
 
