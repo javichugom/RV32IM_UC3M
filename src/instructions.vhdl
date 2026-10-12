@@ -22,8 +22,58 @@ package instructions is
 
         illegal
     );
+    
+    type alu_operation_t is (
+        add,
+        sub,
+        alu_xor,
+        alu_and,
+        alu_or,
+        s_left,
+        s_right_a,
+        s_right_l,
+        slt,
+        sltu    
+    );
+    
+    type branch_fault_t is (
+        none,
+        less_u,
+        less_s,
+        equal,
+        not_equal,
+        ge_u,
+        ge_s,
+        always
+    );
+    
+    type mux_ual_1_t is (
+        reg,
+        pc
+    );
+    
+    type mux_ual_2_t is (
+        reg,
+        imm
+    );          
+    
+    type mux_wb_t is (
+        mem,
+        alu_res
+    );
+    
+    type microinstruction_t is record
+        alu_op : alu_operation_t;
+        branch : branch_fault_t;
+        mux_1 : mux_ual_1_t;
+        mux_2 : mux_ual_2_t;
+        r_w_mem   : std_logic;
+        w_reg_en : std_logic;
+        mux_wb : mux_wb_t;
+    end record;
 
     function decode_instruction(instruction_encoded : std_logic_vector(31 downto 0)) return instruction_t;
+    function decode_microinstruction(instruction : instruction_t) return microinstruction_t;
 end package instructions;
 
 package body instructions is
@@ -88,9 +138,388 @@ package body instructions is
                   else ecall  when instruction_encoded = "00000000000000000000000001110011"
                   else ebreak  when instruction_encoded = "00000000000100000000000001110011"
 
-                  else undefined;
+                  else illegal;
 
         return result;
     end;
-end package body instructions;
 
+    function decode_microinstruction(instruction : instruction_t) return microinstruction_t is
+        variable microinstruction : microinstruction_t;
+    begin
+        with instruction select
+        microinstruction :=
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when add,
+                (
+                    alu_op   => sub,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when sub,
+                (
+                    alu_op   => alu_xor,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when bxor,
+                ( 
+                    alu_op   => alu_or,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when bor,
+                (
+                    alu_op   => alu_and,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when band,
+                (
+                    alu_op   => s_left,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when bsll,
+                (
+                    alu_op   => s_right_l,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when bsrl,
+                (
+                    alu_op   => s_right_a,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when bsra,
+                (
+                    alu_op   => slt,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when slt,
+                (
+                    alu_op   => sltu,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when sltu,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when addi,
+                (
+                    alu_op   => alu_xor,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when xori,
+                (
+                    alu_op   => alu_or,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when ori,
+                (
+                    alu_op   => alu_and,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when andi,
+                (
+                    alu_op   => s_left,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when slli,
+                (
+                    alu_op   => s_right_l,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when srli,
+                (
+                    alu_op   => s_right_a,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when srai,
+                (
+                    alu_op   => slt,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when slti,
+                (
+                    alu_op   => sltu,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when sltiu,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when lui,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => pc,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when auipc,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => mem
+                ) when lb,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => mem
+                ) when lh,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => mem
+                ) when lw,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => mem
+                ) when lbu,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => mem
+                ) when lhu,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '1',
+                    w_reg_en => '0',
+                    mux_wb   => alu_res
+                ) when sb,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '1',
+                    w_reg_en => '0',
+                    mux_wb   => alu_res
+                ) when sh,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '1',
+                    w_reg_en => '0',
+                    mux_wb   => alu_res
+                ) when sw,
+
+                (
+                    alu_op   => sub,
+                    branch   => equal,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '0',
+                    mux_wb   => alu_res
+                ) when beq,
+                (
+                    alu_op   => sub,
+                    branch   => not_equal,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '0',
+                    mux_wb   => alu_res
+                ) when bne,
+                (
+                    alu_op   => sub,
+                    branch   => less_s,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '0',
+                    mux_wb   => alu_res
+                ) when blt,
+                (
+                    alu_op   => sub,
+                    branch   => ge_s,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '0',
+                    mux_wb   => alu_res
+                ) when bge,
+                (
+                    alu_op   => sub,
+                    branch   => less_u,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '0',
+                    mux_wb   => alu_res
+                ) when bltu,
+                (
+                    alu_op   => sub,
+                    branch   => ge_u,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '0',
+                    mux_wb   => alu_res
+                ) when bgeu,
+
+                (
+                    alu_op   => add,
+                    branch   => always,
+                    mux_1    => pc,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when jal,
+                (
+                    alu_op   => add,
+                    branch   => always,
+                    mux_1    => reg,
+                    mux_2    => imm,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => alu_res
+                ) when jalr,
+
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '0',
+                    mux_wb   => alu_res
+                ) when fence,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '0',
+                    mux_wb   => alu_res
+                ) when ecall,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '0',
+                    mux_wb   => alu_res
+                ) when ebreak,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '0',
+                    mux_wb   => alu_res
+                ) when illegal;
+        return microinstruction;
+    end;
+end package body instructions;
