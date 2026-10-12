@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 use work.definitions.all;
+use work.instructions.all;
 
 entity riscv_core is
     port(
@@ -29,6 +30,13 @@ architecture rtl of riscv_core is
     signal branch_addr : word;
 
     signal instruction : word;
+
+    signal wd : word;
+    signal rd : std_logic_vector(4 downto 0);
+    signal reg_write    : std_logic; 
+    signal microinstruction : microinstruction_t;
+    signal alu_result : word;
+    signal addr_inst_aux : word;
 begin
 
     u_fetch : entity work.riscv_fetch(rtl)
@@ -37,7 +45,7 @@ begin
             rst         => rst,
             stall       => stall,
 
-            addr_inst   => addr_inst,
+            addr_inst   => addr_inst_aux,
             wdata_inst  => wdata_inst,
             rdata_inst  => rdata_inst,
             we_inst     => we_inst,
@@ -48,4 +56,21 @@ begin
 
             instruction => instruction
         );
+
+    addr_inst <= addr_inst_aux;
+
+    u_dec_exe : entity work.riscv_decexe
+        port map (
+            clk => clk,
+            rst => rst,
+
+            wd => wd,
+            rd => rd,
+            reg_write => reg_write,
+            pc => addr_inst_aux,
+            instruction => instruction,
+
+            microinstruction => microinstruction,
+            alu_result => alu_result
+        );    
 end rtl;
