@@ -20,7 +20,7 @@ package instructions is
         -- Environment call and breakpoints instructions
         ecall, ebreak,
 
-        undefined
+        illegal
     );
 
     function decode_instruction(instruction_encoded : std_logic_vector(31 downto 0)) return instruction_t;
