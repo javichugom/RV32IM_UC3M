@@ -33,7 +33,8 @@ package instructions is
         s_right_a,
         s_right_l,
         slt,
-        sltu    
+        sltu,    
+        lui
     );
     
     type branch_fault_t is (
