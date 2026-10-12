@@ -50,7 +50,7 @@ architecture sim of tb_instruction_decode is
         fence => "00001111111100000000000000001111",
         ecall => "00000000000000000000000001110011",
         ebreak => "00000000000100000000000001110011",
-        undefined => (others => '1')
+        illegal => (others => '1')
     );
 
 begin
