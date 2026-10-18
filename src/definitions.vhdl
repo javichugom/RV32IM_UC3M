@@ -7,6 +7,8 @@ package definitions is
     constant WORD_LENGTH : natural := 32;
     subtype word is std_logic_vector(WORD_LENGTH - 1 downto 0); 
 
+    constant PC_INCREMENT_VALUE : natural := 4;
+
     function address_width(num_addresses: natural) return natural;
 end package definitions;
 

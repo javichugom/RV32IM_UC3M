@@ -24,22 +24,29 @@ entity riscv_fetch is
 end riscv_fetch;
 
 architecture rtl of riscv_fetch is
-    signal pc : word;
+    subtype pc_t is word;
+    signal pc : pc_t;
+    signal pc_next : pc_t;
 begin
     addr_inst <= pc;
     we_inst <= '0';
     be_inst <= "1111";
 
-    process(clk)
-    begin
-        if rising_edge(clk)
-        then
-            pc <= (others => '0') when rst
-                  else pc when stall
-                  else branch_addr when branch_e
-                  else std_logic_vector(unsigned(pc) + 4);
-        end if;
-    end process;
+    pc_reg: entity work.stage_register(rtl)
+     generic map(
+        stage_output_t => pc_t,
+        reset_value => x"00000000"
+    )
+     port map(
+        clk => clk,
+        rst => rst,
+        stall => stall,
+        stage_output_i => pc_next,
+        stage_output_o => pc
+    );
+
+    pc_next <= branch_addr when branch_e else
+               std_logic_vector(unsigned(pc) + PC_INCREMENT_VALUE);
 
     instruction <= rdata_inst;
 end rtl;
