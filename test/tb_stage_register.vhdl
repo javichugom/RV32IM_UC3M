@@ -1,8 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-use work.definitions.all;
-
 entity tb_stage_register is
 end tb_stage_register;
 
@@ -84,7 +82,7 @@ begin
         data_in <= '1';
         tick;
 
-        assert data_out = data_in
+        assert data_out = '0'
             report "Incorrect data_out after stall" & LF
             & ht & "expected: " & to_string(std_logic'('0')) & LF
             & ht & "obtained: " & to_string(data_out);
@@ -100,7 +98,7 @@ begin
         data_in <= '1';
         tick;
 
-        assert data_out = data_in
+        assert data_out = '0'
             report "Incorrect data_out after reset and stall" & LF
             & ht & "expected: " & to_string(std_logic'('0')) & LF
             & ht & "obtained: " & to_string(data_out);
