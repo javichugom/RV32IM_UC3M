@@ -55,7 +55,8 @@ package instructions is
     
     type mux_ual_2_t is (
         reg,
-        imm
+        imm,
+        pc_increment
     );          
     
     type mux_wb_t is (
