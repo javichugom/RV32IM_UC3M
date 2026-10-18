@@ -36,9 +36,17 @@ architecture rtl of riscv_core is
     signal reg_write    : std_logic; 
     signal microinstruction : microinstruction_t;
     signal alu_result : word;
+    signal flag_eq : std_logic;
+    signal flag_lt : std_logic;
+    signal flag_lt_u : std_logic;
     signal addr_inst_aux : word;
-begin
+    signal rd_addr_o : std_logic_vector(4 downto 0);
+    signal rs1 : word;
+    signal rs2 : word;
+    signal immediate : word;
+    signal flag_illegal_instruction : std_logic;
 
+begin
     u_fetch : entity work.riscv_fetch(rtl)
         port map (
             clk         => clk,
@@ -70,7 +78,17 @@ begin
             pc => addr_inst_aux,
             instruction => instruction,
 
+            rd_addr_o => rd_addr_o,
+            rs1 => rs1,
+            rs2 => rs2,
+            immediate => immediate,
+
             microinstruction => microinstruction,
-            alu_result => alu_result
+            flag_illegal_instruction => flag_illegal_instruction,
+
+            alu_result => alu_result,
+            flag_eq => flag_eq,
+            flag_lt => flag_lt,
+            flag_lt_u => flag_lt_u
         );    
 end rtl;
