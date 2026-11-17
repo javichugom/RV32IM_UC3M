@@ -27,7 +27,17 @@ entity riscv_decexe is
         alu_result : out word;
         flag_eq : out std_logic;
         flag_lt : out std_logic;
-        flag_lt_u : out std_logic
+        flag_lt_u : out std_logic;
+
+        branch_next_cycle : out std_logic;
+        branch_operand1 : out word;
+        branch_operand2 : out word;
+
+        addr_data : out word;
+        we_data : out std_logic;
+        be_data : out std_logic_vector(3 downto 0);
+        wdata_data : out word;
+        unaligned_memory_waddress: out std_logic
     );
 end riscv_decexe;
 
@@ -54,7 +64,8 @@ architecture rtl of riscv_decexe is
         new_value : word
     ) return word is
     begin
-        if write_enable = '1' and register_source = write_register then
+        if write_enable = '1' and register_source = write_register
+            and write_register /= "00000" then
             return new_value;
         else
             return current_value;
@@ -64,8 +75,7 @@ architecture rtl of riscv_decexe is
 begin
     rf_inst : entity work.register_file(rtl)
         generic map (
-            NUM_REGISTERS => 32,
-            WIDTH => WORD_LENGTH
+            NUM_REGISTERS => 32
         )
         port map (
             clk      => clk,
@@ -110,14 +120,61 @@ begin
                      immediate when imm,
                      std_logic_vector(to_unsigned(
                          PC_INCREMENT_VALUE, WORD_LENGTH)) when pc_increment;
+
     alu_inst: entity work.alu(rtl)
      port map(
         a => alu_operand_1,
         b => alu_operand_2,
         alu_operation => microinstruction.alu_op,
+        operation_sign => microinstruction.operation_sign,
         result => alu_result,
         f_eq => flag_eq,
         f_lt => flag_lt,
         f_lt_u => flag_lt_u
     );
+
+    with microinstruction.branch select
+    branch_next_cycle <=
+        '0' when none,
+        flag_lt_u when less_u,
+        flag_lt when less_s,
+        flag_eq when equal,
+        not flag_eq when not_equal,
+        not flag_lt_u when ge_u,
+        not flag_lt when ge_s,
+        '1' when jal | jalr;
+
+    with microinstruction.branch select
+    branch_operand1 <=
+        rs1 when jalr,
+        pc_value when none | less_u | less_s | equal |
+                              not_equal | ge_u | ge_s | jal;
+
+    branch_operand2 <= immediate;
+
+    with microinstruction.branch select
+    branch_next_cycle <=
+        '0' when none,
+        flag_lt_u when less_u,
+        flag_lt when less_s,
+        flag_eq when equal,
+        not flag_eq when not_equal,
+        not flag_lt_u when ge_u,
+        not flag_lt when ge_s,
+        '1' when jal | jalr;
+
+    addr_data <= alu_result;
+    we_data <= microinstruction.r_w_mem;
+
+    bytes_organiser_write_inst: entity work.bytes_organiser_write(rtl)
+        port map(
+            memory_address => addr_data,
+            memory_wdata => rs2,
+
+            memory_data_len => microinstruction.memory_data_len,
+            be_write => be_data,
+
+            memory_wdata_organised => wdata_data,
+            unaligned_memory_waddress => unaligned_memory_waddress
+        );
 end rtl;

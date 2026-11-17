@@ -10,6 +10,7 @@ entity alu is
         a : in word;
         b : in word;
         alu_operation : in alu_operation_t;
+        operation_sign : operation_sign_t;
         result : out word;
         f_eq : out std_logic;
         f_lt : out std_logic;
@@ -31,22 +32,21 @@ begin
     with alu_operation select
     result_extended <=
         std_logic_vector(signed(a_extended) + signed(b_extended))   when add,
-        std_logic_vector(signed(a_extended) - signed(b_extended))   when sub | slt | sltu,
+        std_logic_vector(signed(a_extended) - signed(b_extended))   when sub | slt,
         a_extended and b_extended                                   when alu_and,
         (a_extended or b_extended)                                  when alu_or,
         (a_extended xor b_extended)                                 when alu_xor,
-        std_logic_vector(shift_left (unsigned(a_extended), shamt))  when s_left,
-        std_logic_vector(shift_right(unsigned(a_extended), shamt))  when s_right_l,
-        std_logic_vector(shift_right(  signed(a_extended), shamt))  when s_right_a,
+        '0' & std_logic_vector(shift_left (unsigned(a), shamt))     when s_left,
+        '0' & std_logic_vector(shift_right(unsigned(a), shamt))     when s_right_l,
+        '0' & std_logic_vector(shift_right(  signed(a), shamt))     when s_right_a,
         b_extended                                                  when lui;
         
-    with alu_operation select
     result <=
-        (0 => f_lt, others => '0') when slt,
-        (0 => f_lt_u, others => '0') when sltu,
-        result_extended(31 downto 0) when others;
+        (0 => f_lt, others => '0') when alu_operation = slt and operation_sign = s else
+        (0 => f_lt_u, others => '0') when alu_operation = slt and operation_sign = u else
+        result_extended(31 downto 0);
     
     f_eq <= nor result;
-    f_lt <= result(31) when (a(31) = b(31)) else a(31);    
+    f_lt <= result_extended(31) when (a(31) = b(31)) else a(31);    
     f_lt_u <= result_extended(32);                
 end rtl;

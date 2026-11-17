@@ -6,25 +6,23 @@ use work.definitions.all;
 
 entity register_file is
     generic(
-        NUM_REGISTERS : natural := 32;
-        WIDTH : natural := 32
+        NUM_REGISTERS : natural := 32
     );
     port(
         clk : in std_logic;
         rst : in std_logic;
-        wd : in std_logic_vector (WIDTH-1 downto 0);
+        wd : in word;
         rd : in std_logic_vector (address_width(NUM_REGISTERS)-1 downto 0);
         reg_write : in std_logic;
         rs1 : in std_logic_vector (address_width(NUM_REGISTERS)-1 downto 0);
-        rd1 : out std_logic_vector (WIDTH - 1 downto 0);
+        rd1 : out word;
         rs2 : in std_logic_vector (address_width(NUM_REGISTERS)-1 downto 0);
-        rd2 : out std_logic_vector (WIDTH - 1 downto 0)
+        rd2 : out word
     );
 end register_file;
 
 architecture rtl of register_file is
-    type registers_t is array (NUM_REGISTERS-1 downto 0) of std_logic_vector(WIDTH-1 downto 0);
-    signal registers : registers_t;
+    signal registers : registers_t(NUM_REGISTERS-1 downto 0);
     signal enable_register : std_logic_vector(NUM_REGISTERS-1 downto 1); 
 begin
     generate_registers: for i in 0 to NUM_REGISTERS-1 generate

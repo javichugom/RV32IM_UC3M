@@ -2,28 +2,29 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+use work.definitions.all;
+
 entity tb_register_file is
 end tb_register_file;
 
 architecture sim of tb_register_file is
-    constant N : integer := 32;
+    constant N : integer := WORD_LENGTH;
     constant NUM_REGISTERS : integer := 32;
 
     signal clk      : std_logic := '0';
     signal rst      : std_logic := '0';
-    signal wd       : std_logic_vector(N-1 downto 0) := (others => '0');
+    signal wd       : word := (others => '0');
     signal rd       : std_logic_vector(4 downto 0) := (others => '0');
     signal reg_write : std_logic := '0';
     signal rs1      : std_logic_vector(4 downto 0) := (others => '0');
     signal rs2      : std_logic_vector(4 downto 0) := (others => '0');
-    signal rd1      : std_logic_vector(N-1 downto 0);
-    signal rd2      : std_logic_vector(N-1 downto 0);
+    signal rd1      : word;
+    signal rd2      : word;
 begin
 
     dut: entity work.register_file
         generic map (
-            NUM_REGISTERS => NUM_REGISTERS,
-            WIDTH => N
+            NUM_REGISTERS => NUM_REGISTERS
         )
         port map (
             clk      => clk,

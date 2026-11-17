@@ -15,20 +15,24 @@ entity riscv_fetch is
         rdata_inst : in word;
         we_inst : out std_logic;
         be_inst: out std_logic_vector(3 downto 0);
+        
+        branch : in std_logic;
+        operand1 : in word;
+        operand2 : in word;
 
-        branch_e : in std_logic;
-        branch_addr : in word; 
-
+        pc : out word;
         instruction : out word
     );
 end riscv_fetch;
 
 architecture rtl of riscv_fetch is
     subtype pc_t is word;
-    signal pc : pc_t;
+    signal pc_current : pc_t;
     signal pc_next : pc_t;
+
+    constant RESET_ADDR : pc_t := x"00000000";
 begin
-    addr_inst <= pc;
+    addr_inst <= pc_next;
     we_inst <= '0';
     be_inst <= "1111";
 
@@ -42,11 +46,19 @@ begin
         rst => rst,
         stall => stall,
         stage_output_i => pc_next,
-        stage_output_o => pc
+        stage_output_o => pc_current
     );
+    pc <= pc_current;
 
-    pc_next <= branch_addr when branch_e else
-               std_logic_vector(unsigned(pc) + PC_INCREMENT_VALUE);
+    process(all)
+        variable branch_address : pc_t;
+    begin
+        branch_address := std_logic_vector(unsigned(operand1) + unsigned(operand2));
+        pc_next <=
+            RESET_ADDR when rst else
+            std_logic_vector(unsigned(pc_current) + PC_INCREMENT_VALUE) when not branch else
+            (31 downto 1 => branch_address(31 downto 1), 0 => '0');
+    end process;
 
     instruction <= rdata_inst;
 end rtl;
