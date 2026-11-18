@@ -16,12 +16,6 @@ package definitions is
 
     constant NOP : word := x"00000033";
 
-    type pc_source_t is (
-        pc_plus_4,
-        jalr,
-        branch_target
-    );
-
     type stage1_output_t is record
         instruction : word;
         pc : word;
