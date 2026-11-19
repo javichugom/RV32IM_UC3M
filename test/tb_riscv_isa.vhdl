@@ -43,7 +43,8 @@ begin
         wait until instruction = ecall for 1000 * CLK_PERIOD;
         assert instruction = ecall report "Test timeout" severity failure;
         wait until rising_edge(clk);
-        wait until rising_edge(clk);
+        wait for 1 ns;
+
         assert registers(a7) = END_TEST_SYSCALL report "Incorrect call of ecall" severity failure; 
         failed_test := to_integer(shift_right(unsigned(registers(a0)), 1));
         assert unsigned(registers(a0)) = 0
