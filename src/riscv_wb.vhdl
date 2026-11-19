@@ -35,6 +35,6 @@ begin
     );
 
     with mux_wb select
-    wb_value <= alu_result when alu_res,
+    wb_value <= alu_result when execute_res,
                 memory_data when mem;
 end rtl;

@@ -20,6 +20,9 @@ package instructions is
         -- Environment call and breakpoints instructions
         ecall, ebreak,
 
+        -- Division instructions,
+        divi, remi, divu, remu,
+
         illegal
     );
     
@@ -61,7 +64,7 @@ package instructions is
     
     type mux_wb_t is (
         mem,
-        alu_res
+        execute_res
     );
     
     type memory_data_len_t is (
@@ -75,6 +78,16 @@ package instructions is
         s
     );
 
+    type divider_op_t is (
+        ddiv,
+        drem
+    );
+
+    type mux_execute_res_t is (
+        alu,
+        div
+    );
+
     type microinstruction_t is record
         alu_op : alu_operation_t;
         branch : branch_fault_t;
@@ -84,7 +97,9 @@ package instructions is
         w_reg_en : std_logic;
         mux_wb : mux_wb_t;
         operation_sign : operation_sign_t;
-        memory_data_len: memory_data_len_t;
+        memory_data_len : memory_data_len_t;
+        divider_op : divider_op_t;
+        mux_execute_res : mux_execute_res_t;
     end record;
 
     function decode_instruction(instruction_encoded : std_logic_vector(31 downto 0)) return instruction_t;
@@ -151,7 +166,12 @@ package body instructions is
                   else fence  when opcode = "0001111" and func3 = "000"
 
                   else ecall  when instruction_encoded = "00000000000000000000000001110011"
-                  else ebreak  when instruction_encoded = "00000000000100000000000001110011"
+                  else ebreak when instruction_encoded = "00000000000100000000000001110011"
+
+                  else divi   when opcode = "0110011" and func3 = "100" and func7 = "0000001"
+                  else divu   when opcode = "0110011" and func3 = "101" and func7 = "0000001"
+                  else remi   when opcode = "0110011" and func3 = "110" and func7 = "0000001"
+                  else remu   when opcode = "0110011" and func3 = "111" and func7 = "0000001"
 
                   else illegal;
 
@@ -170,9 +190,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when add,
                 (
                     alu_op   => sub,
@@ -181,9 +203,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when sub,
                 (
                     alu_op   => alu_xor,
@@ -192,9 +216,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when bxor,
                 ( 
                     alu_op   => alu_or,
@@ -203,9 +229,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when bor,
                 (
                     alu_op   => alu_and,
@@ -214,9 +242,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when band,
                 (
                     alu_op   => s_left,
@@ -225,9 +255,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => u,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when bsll,
                 (
                     alu_op   => s_right_l,
@@ -236,9 +268,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => u,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when bsrl,
                 (
                     alu_op   => s_right_a,
@@ -247,9 +281,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => u,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when bsra,
                 (
                     alu_op   => slt,
@@ -258,9 +294,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when slt,
                 (
                     alu_op   => slt,
@@ -269,9 +307,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => u,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when sltu,
                 (
                     alu_op   => add,
@@ -280,9 +320,11 @@ package body instructions is
                     mux_2    => imm,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when addi,
                 (
                     alu_op   => alu_xor,
@@ -291,9 +333,11 @@ package body instructions is
                     mux_2    => imm,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when xori,
                 (
                     alu_op   => alu_or,
@@ -302,9 +346,11 @@ package body instructions is
                     mux_2    => imm,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when ori,
                 (
                     alu_op   => alu_and,
@@ -313,9 +359,11 @@ package body instructions is
                     mux_2    => imm,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when andi,
                 (
                     alu_op   => s_left,
@@ -324,9 +372,11 @@ package body instructions is
                     mux_2    => imm,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => u,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when slli,
                 (
                     alu_op   => s_right_l,
@@ -335,9 +385,11 @@ package body instructions is
                     mux_2    => imm,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => u,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when srli,
                 (
                     alu_op   => s_right_a,
@@ -346,9 +398,11 @@ package body instructions is
                     mux_2    => imm,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when srai,
                 (
                     alu_op   => slt,
@@ -357,9 +411,11 @@ package body instructions is
                     mux_2    => imm,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when slti,
                 (
                     alu_op   => slt,
@@ -368,9 +424,11 @@ package body instructions is
                     mux_2    => imm,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => u,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when sltiu,
                 (
                     alu_op   => lui,
@@ -379,9 +437,11 @@ package body instructions is
                     mux_2    => imm,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when lui,
                 (
                     alu_op   => add,
@@ -390,9 +450,11 @@ package body instructions is
                     mux_2    => imm,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when auipc,
                 (
                     alu_op   => add,
@@ -403,7 +465,9 @@ package body instructions is
                     w_reg_en => '1',
                     mux_wb   => mem,
                     operation_sign => s,
-                    memory_data_len => byte
+                    memory_data_len => byte,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when lb,
                 (
                     alu_op   => add,
@@ -414,7 +478,9 @@ package body instructions is
                     w_reg_en => '1',
                     mux_wb   => mem,
                     operation_sign => s,
-                    memory_data_len => half_word
+                    memory_data_len => half_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when lh,
                 (
                     alu_op   => add,
@@ -425,7 +491,9 @@ package body instructions is
                     w_reg_en => '1',
                     mux_wb   => mem,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when lw,
                 (
                     alu_op   => add,
@@ -436,7 +504,9 @@ package body instructions is
                     w_reg_en => '1',
                     mux_wb   => mem,
                     operation_sign => u,
-                    memory_data_len => byte
+                    memory_data_len => byte,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when lbu,
                 (
                     alu_op   => add,
@@ -447,7 +517,9 @@ package body instructions is
                     w_reg_en => '1',
                     mux_wb   => mem,
                     operation_sign => u,
-                    memory_data_len => half_word
+                    memory_data_len => half_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when lhu,
                 (
                     alu_op   => add,
@@ -458,7 +530,9 @@ package body instructions is
                     w_reg_en => '0',
                     mux_wb   => mem,
                     operation_sign => s,
-                    memory_data_len => byte
+                    memory_data_len => byte,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when sb,
                 (
                     alu_op   => add,
@@ -467,9 +541,11 @@ package body instructions is
                     mux_2    => imm,
                     r_w_mem  => '1',
                     w_reg_en => '0',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => half_word
+                    memory_data_len => half_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when sh,
                 (
                     alu_op   => add,
@@ -478,9 +554,11 @@ package body instructions is
                     mux_2    => imm,
                     r_w_mem  => '1',
                     w_reg_en => '0',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when sw,
 
                 (
@@ -490,9 +568,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '0',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when beq,
                 (
                     alu_op   => sub,
@@ -501,9 +581,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '0',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when bne,
                 (
                     alu_op   => sub,
@@ -512,9 +594,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '0',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when blt,
                 (
                     alu_op   => sub,
@@ -523,9 +607,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '0',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when bge,
                 (
                     alu_op   => sub,
@@ -534,9 +620,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '0',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => u,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when bltu,
                 (
                     alu_op   => sub,
@@ -545,9 +633,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '0',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => u,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when bgeu,
 
                 (
@@ -557,9 +647,11 @@ package body instructions is
                     mux_2    => pc_increment,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => u,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when jal,
                 (
                     alu_op   => add,
@@ -568,9 +660,11 @@ package body instructions is
                     mux_2    => pc_increment,
                     r_w_mem  => '0',
                     w_reg_en => '1',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => u,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when jalr,
 
                 (
@@ -580,9 +674,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '0',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when fence,
                 (
                     alu_op   => add,
@@ -591,9 +687,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '0',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when ecall,
                 (
                     alu_op   => add,
@@ -602,9 +700,11 @@ package body instructions is
                     mux_2    => reg,
                     r_w_mem  => '0',
                     w_reg_en => '0',
-                    mux_wb   => alu_res,
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when ebreak,
                 (
                     alu_op   => add,
@@ -612,10 +712,64 @@ package body instructions is
                     mux_1    => reg,
                     mux_2    => reg,
                     r_w_mem  => '0',
-                    w_reg_en => '0',
-                    mux_wb   => alu_res,
+                    w_reg_en => '1',
+                    mux_wb   => execute_res,
                     operation_sign => s,
-                    memory_data_len => full_word
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => div
+                ) when divi,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => execute_res,
+                    operation_sign => u,
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => div
+                ) when divu,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => execute_res,
+                    operation_sign => s,
+                    memory_data_len => full_word,
+                    divider_op => drem,
+                    mux_execute_res => div
+                ) when remi,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '1',
+                    mux_wb   => execute_res,
+                    operation_sign => u,
+                    memory_data_len => full_word,
+                    divider_op => drem,
+                    mux_execute_res => div
+                ) when remu,
+                (
+                    alu_op   => add,
+                    branch   => none,
+                    mux_1    => reg,
+                    mux_2    => reg,
+                    r_w_mem  => '0',
+                    w_reg_en => '0',
+                    mux_wb   => execute_res,
+                    operation_sign => s,
+                    memory_data_len => full_word,
+                    divider_op => ddiv,
+                    mux_execute_res => alu
                 ) when illegal;
         return microinstruction;
     end;

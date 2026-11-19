@@ -28,7 +28,7 @@ architecture rtl of riscv_core is
     signal stage1_output : stage1_output_t;
 
     signal microinstruction : microinstruction_t;
-    signal alu_result : word;
+    signal execute_result : word;
     signal flag_eq : std_logic;
     signal flag_lt : std_logic;
     signal flag_lt_u : std_logic;
@@ -110,7 +110,7 @@ begin
             microinstruction => microinstruction,
             flag_illegal_instruction => flag_illegal_instruction,
 
-            alu_result => alu_result,
+            execute_result => execute_result,
             flag_eq => flag_eq,
             flag_lt => flag_lt,
             flag_lt_u => flag_lt_u,
@@ -134,7 +134,7 @@ begin
                 alu_result => x"--------",
                 rd_address => "-----",
                 reg_write => '0',
-                mux_wb => alu_res,
+                mux_wb => execute_res,
                 memory_data_len => full_word,
                 operation_sign => s
             )
@@ -144,7 +144,7 @@ begin
             rst => rst,
             stall => '0',
             stage_output_i => (
-                alu_result => alu_result,
+                alu_result => execute_result,
                 rd_address => rd_addr_o,
                 reg_write => microinstruction.w_reg_en,
                 mux_wb => microinstruction.mux_wb,

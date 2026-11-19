@@ -9,6 +9,9 @@ entity riscv_decexe is
     port (
         clk : in std_logic;
         rst : in std_logic;
+        ready : out std_logic;
+        done : out std_logic;
+
         pc_value : in word;
 
         wd : in word;
@@ -24,7 +27,7 @@ entity riscv_decexe is
         microinstruction : out microinstruction_t;
         flag_illegal_instruction : out std_logic;
 
-        alu_result : out word;
+        execute_result : out word;
         flag_eq : out std_logic;
         flag_lt : out std_logic;
         flag_lt_u : out std_logic;
@@ -55,6 +58,12 @@ architecture rtl of riscv_decexe is
 
     signal alu_operand_1 : word;
     signal alu_operand_2 : word;
+
+    signal alu_result : word;
+
+    signal div_result : word;
+    signal quotient : word;
+    signal remainder : word;
 
     function select_register_value(
         current_value : word;
@@ -132,6 +141,28 @@ begin
         f_lt => flag_lt,
         f_lt_u => flag_lt_u
     );
+
+    div_inst: entity work.riscv_divider
+     port map(
+        clk => clk,
+        rst => rst,
+        dividend => rs1_aux,
+        divider => rs2_aux,
+        operation_sign => microinstruction.operation_sign,
+        valid => '1',
+        ready => open, -- Using parallel implementation
+        done => open, -- Using parallel implementation
+        quotient => quotient,
+        remainder => remainder
+    );
+
+    with microinstruction.divider_op select
+    div_result <= quotient when ddiv,
+                  remainder when drem;
+
+    with microinstruction.mux_execute_res select
+    execute_result <= alu_result when alu,
+                      div_result when div;
 
     with microinstruction.branch select
     branch_next_cycle <=
